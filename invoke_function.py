@@ -11,19 +11,17 @@ from oci.identity import models as identityt_models
 from oci.functions import models as fn_models
 
 
-def get_compartment(oci_cfg, compartment_name: str,
-                    tenancy_id: str) -> identityt_models.Compartment:
+def get_compartment(oci_cfg, compartment_name: str) -> identityt_models.Compartment:
     """
     Identifies compartment ID by its name within the particular tenancy
     :param oci_cfg: OCI auth config
     :param compartment_name: OCI tenancy compartment name
-    :param tenancy_id: OCI tenancy ID
     :return: OCI tenancy compartment
     """
     identity_client = identity.IdentityClient(oci_cfg)
     result = pagination.list_call_get_all_results(
         identity_client.list_compartments,
-        tenancy_id,
+        cfg["tenancy"],
         compartment_id_in_subtree=True,
         access_level="ACCESSIBLE",
     )
@@ -108,7 +106,7 @@ if __name__ == "__main__":
     functions_client = functions.FunctionsManagementClient(cfg)
     config.validate_config(cfg)
 
-    compartment = get_compartment(cfg, compartment_name, cfg["tenancy"])
+    compartment = get_compartment(cfg, compartment_name)
 
     app = get_app(functions_client, app_name, compartment)
 
