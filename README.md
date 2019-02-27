@@ -70,7 +70,7 @@ DEBUG=1 python invoke_function.py <compartment-name> <app-name> <function-name> 
 
 ### Example of invoking a function
 
-1) Using and "DEFAULT" oci config profile:
+1) Using "DEFAULT" oci config profile:
 
 ```bash
 python invoke_function.py workshop helloworld-app helloworld-func-go '{"name":"foobar"}'
