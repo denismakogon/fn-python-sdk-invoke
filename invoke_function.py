@@ -7,8 +7,12 @@ from oci import functions
 from oci import identity
 from oci import pagination
 
+from oci.identity import models as identityt_models
+from oci.functions import models as fn_models
 
-def get_compartment_id(oci_cfg, compartment_name: str, tenancy_id: str) -> str:
+
+def get_compartment_id(oci_cfg, compartment_name: str,
+                       tenancy_id: str) -> identityt_models.Compartment:
     """
     Identifies compartment ID by its name within the particular tenancy
     :param oci_cfg: OCI auth config
@@ -25,14 +29,15 @@ def get_compartment_id(oci_cfg, compartment_name: str, tenancy_id: str) -> str:
     )
     for c in result.data:
         if compartment_name == c.name:
-            return c.id
+            print(type(c))
+            return c
 
     raise Exception("compartment not found")
 
 
 def get_app_id(
         functions_client: functions.FunctionsManagementClient,
-        app_name: str, compartment_id: str) -> str:
+        app_name: str, compartment_id: str) -> fn_models.Application:
     """
     Identifies app ID by its name
     :param functions_client: OCI Functions client
@@ -46,13 +51,14 @@ def get_app_id(
     )
     for app in result.data:
         if app_name == app.display_name:
-            return app.id
+            print(type(app))
+            return app
 
     raise Exception("app not found")
 
 
 def get_function_id(functions_client: functions.FunctionsManagementClient,
-                    app_id: str, function_name: str) -> str:
+                    app_id: str, function_name: str) -> fn_models.Function:
     """
     Identifies function ID by its name
     :param functions_client: OCI Functions client
@@ -67,7 +73,9 @@ def get_function_id(functions_client: functions.FunctionsManagementClient,
     )
     for fn in result.data:
         if function_name == fn.display_name:
-            return fn.id
+            print(type(fn))
+            print(fn.invoke_endpoint)
+            return fn
 
     raise Exception("function not found")
 
@@ -99,10 +107,15 @@ if __name__ == "__main__":
     functions_client = functions.FunctionsManagementClient(cfg)
     config.validate_config(cfg)
 
-    compartment_id = get_compartment_id(cfg, compartment_name, cfg["tenancy"])
-    app_id = get_app_id(functions_client, app_name, compartment_id)
-    fn_id = get_function_id(functions_client, app_id, fn_name)
-    invoke_endpoint = functions_client.get_function(fn_id).data.invoke_endpoint
+    compartment = get_compartment_id(cfg, compartment_name, cfg["tenancy"])
+    compartment_id = compartment.id
+
+    app = get_app_id(functions_client, app_name, compartment_id)
+    app_id = app.id
+
+    fn = get_function_id(functions_client, app_id, fn_name)
+    fn_id = fn.id
+    invoke_endpoint = fn.invoke_endpoint
 
     invoke_client = functions.FunctionsInvokeClient(
         cfg, service_endpoint=invoke_endpoint)
