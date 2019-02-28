@@ -8,66 +8,74 @@ from oci import identity
 from oci import pagination
 
 
-def get_compartment_id(oci_cfg, compartment_name: str, tenancy_id: str) -> str:
+from oci.identity import models as identityt_models
+from oci.functions import models as fn_models
+
+
+def get_compartment(oci_cfg, compartment_name: str) -> identityt_models.Compartment:
     """
     Identifies compartment ID by its name within the particular tenancy
     :param oci_cfg: OCI auth config
     :param compartment_name: OCI tenancy compartment name
-    :param tenancy_id: OCI tenancy ID
-    :return: OCI tenancy compartment ID
+    :return: OCI tenancy compartment
     """
     identity_client = identity.IdentityClient(oci_cfg)
     result = pagination.list_call_get_all_results(
         identity_client.list_compartments,
-        tenancy_id,
+        cfg["tenancy"],
         compartment_id_in_subtree=True,
         access_level="ACCESSIBLE",
     )
     for c in result.data:
         if compartment_name == c.name:
-            return c.id
+            print(type(c))
+            return c
 
     raise Exception("compartment not found")
 
 
-def get_app_id(
+def get_app(
         functions_client: functions.FunctionsManagementClient,
-        app_name: str, compartment_id: str) -> str:
+        app_name: str, compartment: identityt_models.Compartment) -> fn_models.Application:
     """
     Identifies app ID by its name
     :param functions_client: OCI Functions client
     :param app_name: OCI Functions app name
-    :param compartment_id: OCI tenancy compartment ID
+    :param compartment: OCI tenancy compartment
     :return: OCI Functions app ID
     """
     result = pagination.list_call_get_all_results(
         functions_client.list_applications,
-        compartment_id
+        compartment.id
     )
     for app in result.data:
         if app_name == app.display_name:
-            return app.id
+            print(type(app))
+            return app
 
     raise Exception("app not found")
 
 
-def get_function_id(functions_client: functions.FunctionsManagementClient,
-                    app_id: str, function_name: str) -> str:
+def get_function(functions_client: functions.FunctionsManagementClient,
+                 app: fn_models.Application,
+                 function_name: str) -> fn_models.Function:
     """
     Identifies function ID by its name
     :param functions_client: OCI Functions client
-    :param app_id: OCI Functions app ID
+    :param app: OCI Functions app
     :param function_name: OCI Functions function name
     :return: OCI Functions function ID
     """
-    functions_client.list_functions(app_id)
+    functions_client.list_functions(app.id)
     result = pagination.list_call_get_all_results(
         functions_client.list_functions,
-        app_id
+        app.id
     )
     for fn in result.data:
         if function_name == fn.display_name:
-            return fn.id
+            print(type(fn))
+            print(fn.invoke_endpoint)
+            return fn
 
     raise Exception("function not found")
 
@@ -99,13 +107,14 @@ if __name__ == "__main__":
     functions_client = functions.FunctionsManagementClient(cfg)
     config.validate_config(cfg)
 
-    compartment_id = get_compartment_id(cfg, compartment_name, cfg["tenancy"])
-    app_id = get_app_id(functions_client, app_name, compartment_id)
-    fn_id = get_function_id(functions_client, app_id, fn_name)
-    invoke_endpoint = functions_client.get_function(fn_id).data.invoke_endpoint
+    compartment = get_compartment(cfg, compartment_name)
+
+    app = get_app(functions_client, app_name, compartment)
+
+    fn = get_function(functions_client, app, fn_name)
 
     invoke_client = functions.FunctionsInvokeClient(
-        cfg, service_endpoint=invoke_endpoint)
+        cfg, service_endpoint=fn.invoke_endpoint)
     with open(sys.argv[4], 'rb') as img_file:
-        resp = invoke_client.invoke_function(fn_id, img_file.read())
+        resp = invoke_client.invoke_function(fn.id, img_file.read())
         print(resp.data.text)
