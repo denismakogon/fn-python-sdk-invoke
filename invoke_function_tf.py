@@ -8,11 +8,11 @@ from oci import identity
 from oci import pagination
 
 
-from oci.identity import models as identityt_models
+from oci.identity import models as identity_models
 from oci.functions import models as fn_models
 
 
-def get_compartment(oci_cfg, compartment_name: str) -> identityt_models.Compartment:
+def get_compartment(oci_cfg, compartment_name: str) -> identity_models.Compartment:
     """
     Identifies compartment ID by its name within the particular tenancy
     :param oci_cfg: OCI auth config
@@ -36,13 +36,17 @@ def get_compartment(oci_cfg, compartment_name: str) -> identityt_models.Compartm
 
 def get_app(
         functions_client: functions.FunctionsManagementClient,
-        app_name: str, compartment: identityt_models.Compartment) -> fn_models.Application:
+        app_name: str, compartment: identity_models.Compartment) -> fn_models.Application:
     """
-    Identifies app ID by its name
+    Identifies app object by its name
     :param functions_client: OCI Functions client
+    :type functions_client: oci.functions.FunctionsManagementClient
     :param app_name: OCI Functions app name
+    :type app_name: str
     :param compartment: OCI tenancy compartment
-    :return: OCI Functions app ID
+    :type compartment: oci.identity.models.Compartment
+    :return: OCI Functions app
+    :rtype: oci.functions.models.Application
     """
     result = pagination.list_call_get_all_results(
         functions_client.list_applications,
@@ -60,11 +64,15 @@ def get_function(functions_client: functions.FunctionsManagementClient,
                  app: fn_models.Application,
                  function_name: str) -> fn_models.Function:
     """
-    Identifies function ID by its name
+    Identifies function object by its name
     :param functions_client: OCI Functions client
+    :type functions_client: oci.functions.FunctionsManagementClient
     :param app: OCI Functions app
+    :type app: oci.functions.models.Application
     :param function_name: OCI Functions function name
-    :return: OCI Functions function ID
+    :type function_name: str
+    :return: OCI Functions function
+    :rtype: oci.functions.models.Function
     """
     functions_client.list_functions(app.id)
     result = pagination.list_call_get_all_results(

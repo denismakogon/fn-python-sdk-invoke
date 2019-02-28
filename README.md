@@ -9,8 +9,7 @@
 
 2. Create a function to invoke
 
-   Create a function using [Go Hello World
-   Function](https://github.com/abhirockzz/oracle-functions-hello-worlds/blob/master/golang-hello-world.md)
+   Create a function using [Golang Hello World Function](https://github.com/fnproject/fn/blob/master/README.md#your-first-function)
 
 ### Install preview OCI Python SDK
 
@@ -38,7 +37,25 @@
 
    `cd fn-python-sdk-invoke` 
 
+## Introduction
 
+If you are new to OCI SDK - please read its [official documentation](https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/) in first place.
+
+To be specifc, it shows how you can invoke a function by its name along with the name of the application name it belongs to, 
+the OCI compartment containing the application, and the OCID of your tenancy.
+
+The OCI SDK exposes two endpoints specificially for Oracle Functions
+
+    * FunctionsManagementClient - for CRUD operations e.g., creating applications, functions, trigger operations.
+    * FunctionsInvokeClient - is for for invoking functions
+
+along with a number of wrapper/handle objects like `Function`, `Application`, and `Compartment`.
+
+For more information on the data types please read code doc strings available for each method:
+
+ - [`get_compartment`](invoke_function.py#L14) method
+ - [`get_app`](invoke_function.py#L36) method
+ - [`get_function`](invoke_function.py#L62) method
 
 ### Authentication
 
