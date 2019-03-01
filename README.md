@@ -13,13 +13,15 @@ name of application it belongs to, the OCI compartment that contains the
 application, and the OCID of your tenancy.  To do this we'll use the two
 Functions related API clients exposed by the OCI SDK:
 
-    * FunctionsManagementClient - is used for functions lifecycle management operations including creating, updating, and querying applications and functions
-    * FunctionsInvokeClient - is used specifically for invoking functions
+ - FunctionsManagementClient - is used for functions lifecycle management operations including creating, updating, and querying applications and functions
+ - FunctionsInvokeClient - is used specifically for invoking functions
 
 Along with the two clients, the OCI SDK also provides a number of wrapper/handle
 objects like `oci.identity.models.Compartment`, `oci.functions.models.Application`, and `oci.functions.models.Function`. In the example, we
 navigate down the hierarchy from `oci.identity.models.Compartment` to `oci.functions.models.Function` and then once we
 have the desired `oci.functions.models.Function` we invoke is using the `oci.functions.FunctionsInvokeClient`.
+
+**Important Note: A Function's OCID and invoke endpoint will remain the same unless you delete the function or it's parent application. Once you get the `oci.functions.models.Function`, you should cache the function's OCID and invoke endpoint either in-memory or to an external data store and use the cached values for subsequent invocations.**
 
 For more information on code structure and API along with the data types please read code doc strings available for each method:
 
@@ -145,10 +147,10 @@ If you were to deploy the TensorFlow function, the command to invoke it using Fn
 CLI would be something like this:
 
 ```bash
-cat /home/foo/cat.jpeg | fn invoke fn-tensorflow-app classify
+cat test-som-1.jpeg | fn invoke fn-tensorflow-app classify
 ```
 
-In this case, the `cat.jpeg` image is being passed
+In this case, the `test-som-1.jpeg` image is being passed
 as an input to the function. 
 
 The programmatic (using python SDK) equivalent of
