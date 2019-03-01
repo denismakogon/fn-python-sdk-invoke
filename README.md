@@ -1,6 +1,36 @@
-# Invoke Oracle Functions using the OCI Python SDK
+# Invoking an Oracle Function using the OCI Python SDK
 
-## Pre-requisites
+## Introduction
+
+This example illustrates how to use the OCI Python SDK to invoke a function
+deployed to Oracle Functions.  The OCI SDK includes support for a large number
+of OCI services but this example focuses specifically on Functions support.
+For an introduction to the OCI SDK please refer to the [official
+documentation](https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/).
+
+In this example we'll show how you can invoke a function using its name, the
+name of application it belongs to, the OCI compartment that contains the
+application, and the OCID of your tenancy.  To do this we'll use the two
+Functions related API clients exposed by the OCI SDK:
+
+    * FunctionsManagementClient - is used for functions lifecycle management operations including creating, updating, and querying applications and functions
+    * FunctionsInvokeClient - is used specifically for invoking functions
+
+Along with the two clients, the OCI SDK also provides a number of wrapper/handle
+objects like `oci.identity.models.Compartment`, `oci.functions.models.Application`, and `oci.functions.models.Function`. In the example, we
+navigate down the hierarchy from `oci.identity.models.Compartment` to `oci.functions.models.Function` and then once we
+have the desired `oci.functions.models.Function` we invoke is using the `oci.functions.FunctionsInvokeClient`.
+
+For more information on code structure and API along with the data types please read code doc strings available for each method:
+
+ - [`get_compartment`](invoke_function.py#L14) method
+ - [`get_app`](invoke_function.py#L36) method
+ - [`get_function`](invoke_function.py#L62) method
+
+
+### Prerequisites
+
+This example invokes a function so we have to install the Fn CLI and create a target function:
 
 1. Install/update the Fn CLI
 
@@ -37,25 +67,7 @@
 
    `cd fn-python-sdk-invoke` 
 
-## Introduction
 
-If you are new to OCI SDK - please read its [official documentation](https://oracle-cloud-infrastructure-python-sdk.readthedocs.io/en/latest/) in first place.
-
-To be specifc, it shows how you can invoke a function by its name along with the name of the application name it belongs to, 
-the OCI compartment containing the application, and the OCID of your tenancy.
-
-The OCI SDK exposes two endpoints specificially for Oracle Functions
-
-    * FunctionsManagementClient - for CRUD operations e.g., creating applications, functions, trigger operations.
-    * FunctionsInvokeClient - is for for invoking functions
-
-along with a number of wrapper/handle objects like `Function`, `Application`, and `Compartment`.
-
-For more information on the data types please read code doc strings available for each method:
-
- - [`get_compartment`](invoke_function.py#L14) method
- - [`get_app`](invoke_function.py#L36) method
- - [`get_function`](invoke_function.py#L62) method
 
 ### Authentication
 
@@ -124,15 +136,19 @@ python invoke_function.py nested-ws nest-app go-fn '{}'
 
 ## What if my function needs input in binary form?
 
-You can use this Tensorflow based function as an example to explore the
-possibility of invoking a function using binary content -
-https://github.com/abhirockzz/fn-hello-tensorflow. This function expects the
-image data (in binary form) as an input and returns what object that image
+You can use this [TensorFlow based function](https://github.com/abhirockzz/fn-hello-tensorflow) 
+as an example to explore the possibility of invoking a function using binary content.
+This function expects the image data (in binary form) as an input and returns what object that image
 resembles along with the percentage accuracy.
 
-If you were to deploy the Tensorflow function, the command to invoke it using Fn
-CLI would be something like this - `cat /home/foo/cat.jpeg | fn invoke
-fn-tensorflow-app classify`. In this case, the `cat.jpeg` image is being passed
+If you were to deploy the TensorFlow function, the command to invoke it using Fn
+CLI would be something like this:
+
+```bash
+cat /home/foo/cat.jpeg | fn invoke fn-tensorflow-app classify
+```
+
+In this case, the `cat.jpeg` image is being passed
 as an input to the function. 
 
 The programmatic (using python SDK) equivalent of
