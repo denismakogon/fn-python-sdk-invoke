@@ -47,18 +47,18 @@ This example invokes a function so we have to install the Fn CLI and create a ta
 
 1. Download and unzip the preview SDK
 
-   `unzip oci-python-sdk-2.2.1+preview.1.712.zip`
+   `unzip oci-python-sdk-2.2.11+preview.1.819.zip`
 
 2. Change into the correct directory
 
-   `cd oci-python-sdk-2.2.1+preview.1.712`
+   `cd oci-python-sdk`
 
 3. Virtualenv
 
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
-   pip install oci-2.2.1+preview.1.712-py2.py3-none-any.whl
+   pip install oci-2.2.11+preview.1.819-py2.py3-none-any.whl
    ```
 
 4. Clone this repository in a separate directory 
